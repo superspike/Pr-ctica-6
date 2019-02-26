@@ -1,37 +1,3 @@
- /*
-  //Algoritmo de Euclides extendidio
-//ax + by = d = gcd(a,b) Devuelve d.
-ll eea(ll a, ll b, ll& x, ll& y) {
-ll xx = y = 0, yy = x = 1;
-while (b) {
-ll q = a / b, t = b; b = a%b; a = t;
-t = xx; xx = x - q*xx; x = t;
-t = yy; yy = y - q*yy; y = t;
-}
-return a;
-}
-
-
-def ecl (a,b):
-if b>a:
-return ecl (b,a)
-if b ==0:
-alfa_a_b =1
-beta_a_b =0
-mcd_a_b =a
-else :
-q,r = divmod (a,b)
-alfa_b_r , beta_b_r , mcd_b_r = ecl (b,r)
-alfa_a_b = beta_b_r
-beta_a_b = alfa_b_r - beta_b_r * q
-mcd_a_b = mcd_b_r
-chequea_invariante (a,b, alfa_a_b , beta_a_b , mcd_a_b )
-return ( alfa_a_b , beta_a_b , mcd_a_b )
-
-*/
-
-/*http://mate.dm.uba.ar/~pdenapo/apuntes-algebraI/clase_de_algebra_sobre_el_algoritmo_de_Euclides.pdf*/
-
 %eea(+A,+B,-X,-Y,-D).
 eea(A,B,X,Y,D):- nonvar(D), eea(A,B,X_,Y_,D__), D_ is D__,  F is mod(D,D_), F == 0, Q is div(D,D_), X is X_*Q, Y is Y_*Q,!.
 eea(A,B,_,_,D):- nonvar(D), eea(A,B,_,_,D_), F is mod(D,D_), F  \= 0, !, fail.
@@ -39,26 +5,48 @@ eea(A,B,X,Y,D):- A_ is A, B_ is B, B_ > A_, eea(B,A,Y,X,D),!.
 eea(A,0,1,0,A):- !.
 eea(A,B,X,Y,D):- L is mod(A,B), Q is div(A,B), eea(B,L,X_,Y_,D), X is Y_, Y is X_ - Y_*Q.
 
-inverso(estado(C1,C2,X,Y), estado(C2,C1,Y,X)).
+%optieeaX(+A,+B,+X,+Y,-Ap,-Bp,-Xp,-Yp)
+optieeaX(A,B,X,Y,A,B,Xp,Yp):- X > 0, K is div(X,B), Xp is X - K*B, Yp is Y+K*A, Yp =< 0,  Xp - Yp < X - Y,!. %Xp siempre es >= 0.
+optieeaX(A,B,X,Y,B,A,Yp,Xp):- X > 0, K is div(X,B), Xp is X - K*B, Yp is Y+K*A, Yp > 0,  Xp + Yp < X - Y,!. %Xp == 0.
+optieeaX(A,B,X,Y,A_,B_,Xp,Yp):- X == 0, Y > 0, optieeaX(B,A,Y,X,A_,B_,Xp,Yp),!.
+optieeaX(A,B,X,Y,A,B,X,Y).
 
+%optieeaY(+A,+B,+X,+Y,-Ap,-Bp,-Xp,-Yp)
+optieeaY(A,B,X,Y,A,B,Xp,Yp):- Y < 0, K is div(-Y,A), Xp is X - K*B, Yp is Y+K*A, Xp >= 0,  Xp - Yp < X - Y,!. %Yp siempre es <= 0.
+optieeaY(A,B,X,Y,B,A,Yp,Xp):- Y < 0, K is div(-Y,A), Xp is X - K*B, Yp is Y+K*A, Xp < 0, - Xp - Yp < X - Y,!.  %Yp == 0 (aunque nunca se alcance por la llamada realizada).
+optieeaY(A,B,X,Y,A_,B_,Xp,Yp):- Y == 0, X < 0, optieeaY(B,A,Y,X,A_,B_,Xp,Yp),!.
+optieeaY(A,B,X,Y,A,B,X,Y).
+
+%optieea(+A,+B,+X,+Y,-Ap,-Bp,-Xp,-Yp)
+optieea(A,B,X,Y,A_,B_,X_,Y_):- X < Y, optieea(B,A,Y,X,A_,B_,X_,Y_),!.   %(X < 0; X==0, Y > 0) es equiv a X < Y
+optieea(A,B,X,Y,A_,B_,X_,Y_):- optieeaX(A,B,X,Y,C,D,E,F), optieeaY(A,B,X,Y,C_,D_,E_,F_),(E-F < E_-F_, optieea(C,D,E,F,A_,B_,X_,Y_); (E_-F_ < E-F; E_-F_ < X-Y), optieea(C_,D_,E_,F_,A_,B_,X_,Y_)),!.
+optieea(A,B,X,Y,A,B,X,Y).
+
+%inicial(+C1,+C2,-Estado).
 inicial(C1,C2,estado(C1,C2,0,0)).
 
-%movimiento(A,B,Estado,Operadores,Estados):- A_ is A, A_ < 0, inverso(Estado, Estado_), movimiento(B,A,Esdo_,Operadores,Estados),!.
+%inicial(+C1,+C2,-Estado, -Coefs).
+init(C1,C2,L, Estado, coefs(X_,Y_)):- eea(C1,C2,X,Y,L), optieea(C1,C2,X,Y,A,B,X_,Y_), inicial(A,B,Estado).
 
-
-movimiento(A,B,estado(C1,C2,0,Y),['llenar'|Operadores],[estado(C1,C2,0,Y)|Estados]):- A_ is A, A_>0, AAux is A-1, write('llenar'),nl, movimiento(AAux,B,estado(C1,C2,C1,Y), Operadores, Estados),!.
-movimiento(A,B,estado(C1,C2,X,Y),['trasvasar'|Operadores],[estado(C1,C2,X,Y)|Estados]):- (A > 0; A == 0,B \= 0), C2-Y>=X, Z is Y+X , X\=0, write('trasvasar'),nl, movimiento(A,B,estado(C1,C2,0,Z), Operadores, Estados),!.
-movimiento(A,B,estado(C1,C2,X,Y),['trasvasar'|Operadores],[estado(C1,C2,X,Y)|Estados]):- (A > 0; A == 0,B\=0), C2-Y < X, C2 \= Y, Z is X-(C2-Y) , write('trasvasar'),nl, movimiento(A,B,estado(C1,C2,Z,C2), Operadores, Estados),!.
-movimiento(0,0,estado(C1,C2,X,Y),['trasvasar'|Operadores],[estado(C1,C2,X,Y)|Estados]):- C2-Y>=X, Z is Y+X , X\=0,  write('trasvasar'),nl,movimiento(0,0,estado(C1,C2,0,Z), Operadores, Estados),!.
-movimiento(A,B,estado(C1,C2,X,C2),['vaciar'|Operadores],[estado(C1,C2,X,C2)|Estados]):-  B_ is B, B_<0, BAux is B+1, write('vaciar'),nl, movimiento(A,BAux,estado(C1,C2,X,0), Operadores, Estados),!.
-/* SI X*A+Y*B=D, X > Y, se da que si Y|X => A=0, B=Y/X>0*/
-/*movimiento(0,B,estado(C1,C2,X,0),['llenarD'|Operadores],[estado(C1,C2,X,C2)|Estados]):-  B_ is B, B_>0, BAux is B-1, movimiento(0,BAux,estado(C1,C2,X,C2), Operadores, Estados),!.
-movimiento(0,B,estado(C1,C2,X,Y),['trasvasarDI'|Operadores],[estado(C1,C2,X,Y)|Estados]):- C2_ is C2, X_ is X, Y_ is Y, Y\=0, Z is Y+X , X\=0, movimiento(A,B,estado(C1,C2,0,Z), Operadores, Estados),!.*/
+%movimiento(+A,+B,-Estado,-[Operadores],-[Estados]).
+movimiento(A,B,estado(C1,C2,0,Y),['llenar'|Operadores],[estado(C1,C2,0,Y)|Estados]):- A > 0, AAux is A - 1,movimiento(AAux,B,estado(C1,C2,C1,Y), Operadores, Estados),!.
+movimiento(A,B,estado(C1,C2,X,Y),['trasvasar'|Operadores],[estado(C1,C2,X,Y)|Estados]):- (A > 0; A == 0,B \= 0), C2 - Y >= X, Z is Y+X , X\=0, movimiento(A,B,estado(C1,C2,0,Z), Operadores, Estados),!.
+movimiento(A,B,estado(C1,C2,X,Y),['trasvasar'|Operadores],[estado(C1,C2,X,Y)|Estados]):- (A > 0; A == 0,B\=0), C2-Y < X, C2 \= Y, Z is X-(C2-Y) , movimiento(A,B,estado(C1,C2,Z,C2), Operadores, Estados),!.
+movimiento(A,B,estado(C1,C2,X,C2),['vaciar'|Operadores],[estado(C1,C2,X,C2)|Estados]):-  B < 0, BAux is B+1, movimiento(A,BAux,estado(C1,C2,X,0), Operadores, Estados),!.
+  %Si X*A+Y*B=D, X > Y, se da que si Y|X => A=0, B=Y/X > 0 (luego dará problemas).
+  %Caso final: hay que hacer un trasvase final por algún motivo.
+movimiento(0,0,estado(C1,C2,X,Y),['trasvasar'],[estado(C1,C2,X,Y),estado(C1,C2,0,Z)]):- C2 - Y >= X, Z is Y + X , X\=0, Y\=0,!.
+  %Caso final: no hay que hacer ningún trasvase, todo va bien.
 movimiento(0,0,Estado,[],[Estado]).
 
+%consultaBezout(+C1,+C2,+L).
 consultaBezout(C1,C2,L):- L > C1, L > C2, !, fail.
-consultaBezout(C1,C2,L):- inicial(C1,C2,Estado), eea(C1,C2,X,Y,L), X > 0, movimiento(X,Y,Estado, Operadores, Estados), write(Operadores), nl, write(Estados), nl,!.
-consultaBezout(C1,C2,L):- inicial(C1,C2,Estado), eea(C1,C2,X,Y,L), inverso(Estado,Estado_), write(Estado -> Estado_),nl, movimiento(Y,X,Estado_, Operadores, Estados), write(Operadores), nl, write(Estados), nl.
+consultaBezout(C1,C2,L):- init(C1,C2,L,Estado, coefs(X,Y)), movimiento(X,Y,Estado, Operadores, Estados),
+  write('Solución sin repetición de estados: '), nl, write(Operadores), nl, write('Estados camino: '), nl, write(Estados).
+
+%consultaBezoutTest.
+%Ejemplo de caso de prueba para los datos del apartado II.
+consultaBezoutTest:- consultaBezout(3,4,2).
 
 
 
