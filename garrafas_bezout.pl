@@ -29,7 +29,7 @@ optieea(A,B,X,Y,A,B,X,Y).
 %inicial(+C1,+C2,-Estado).
 inicial(C1,C2,estado(C1,C2,0,0)).
 
-%inicial(+C1,+C2,-Estado, -Coefs).
+%init(+C1,+C2,+L,-Estado, -Coefs).
 init(C1,C2,L, Estado, coefs(X_,Y_)):- eea(C1,C2,X,Y,L), optieea(C1,C2,X,Y,A,B,X_,Y_), inicial(A,B,Estado).
 
 %movimiento(+A,+B,-Estado,-[Operadores],-[Estados]).
