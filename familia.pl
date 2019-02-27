@@ -44,12 +44,6 @@ primo(X, Y):-progenitor(A, X), progenitor(B, Y), hermana(A, B), persona(X, hombr
 prima(X, Y):-progenitor(A, X), progenitor(B, Y), hermano(A, B), persona(X, mujer).
 prima(X, Y):-progenitor(A, X), progenitor(B, Y), hermana(A, B), persona(X, mujer).
 
-primo(X, Y):-abuelo(Z, X), abuelo(Z, Y), X\=Y, persona(X, hombre).
-primo(X, Y):-abuela(Z, X), abuela(Z, Y), X\=Y, persona(X, hombre).
-
-prima(X, Y):-abuelo(Z, X), abuelo(Z, Y), X\=Y, persona(X, mujer).
-prima(X, Y):-abuela(Z, X), abuela(Z, Y), X\=Y, persona(X, mujer).
-
 %ascendiente(?X,?Y).
 %X es ascendiente de Y si es un progenitor o si es progenitor de algún ascendiente de Y.
 ascendiente(X, Y):-progenitor(X, Y),!. %Lleva un corte para evitar respuestas redundantes cuando el arbo familiar es enrevesado.

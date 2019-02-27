@@ -28,17 +28,19 @@ movimiento(estado(X,Y,I0,D0), estado(X,Y,X,D1), 'trasvasar de derecha a izquierd
 %puede(+Estado,+Litros,+Visitados,-Operadores,-Estados).
 %No se puede si los litros son negativos y obviamente puede si llegas a un estado objetivo.
 %En otro caso, tratas de ir a un estado no visitado ya.
-puede(_,Litros,_,_,_):- Litros < 0, !, fail.
-puede(Estado, Litros, _, [], [Estado]):- objetivo(Litros, Estado),!.
-puede(Estado, Litros, Visitados, [Operador|Operadores], [Estado|Estados]):-
+puede(_,Litros,_,_,_,_):- Litros < 0, !, fail.
+puede(Estado, Litros, _, [], [Estado],0):- objetivo(Litros, Estado),!.
+puede(Estado, Litros, Visitados, [Operador|Operadores], [Estado|Estados],N):-
               movimiento(Estado, EstadoSig, Operador),
               \+ member(EstadoSig,Visitados),
-              puede(EstadoSig, Litros, [EstadoSig|Visitados], Operadores, Estados),!.
+              puede(EstadoSig, Litros, [EstadoSig|Visitados], Operadores, Estados,M),N is M+1,!.
               
 %consulta(+C1,+C2,+L).
 %dadas las capacidades de los recipientes y los litros a almacenar, calcula una solución al problema y la muestra por pantalla.
-consulta(C1,C2,L) :- inicial(C1,C2,Estado), puede(Estado, L, [Estado], Operadores, Estados), nl,
-write('Solución sin repetición de estados: '), nl, write(Operadores), nl, write('Estados camino: '), nl, write(Estados).
+consulta(C1,C2,L) :- inicial(C1,C2,Estado), puede(Estado, L, [Estado], Operadores, Estados, N),
+  write('Solución sin repetición de estados: '), nl,nl, write('Operadores empleados: '),nl, write(Operadores),
+  nl,nl, write('Estados recorridos: '), nl, write(Estados),nl,nl, write('Profundidad de la solución encontrada: '),
+  write(N),write(' operadores'),nl.
 
 %consultaTest.
 %Se corresponde al apartado II de la práctica, que es buscar un ejemplo de caso de prueba.
