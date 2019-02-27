@@ -53,7 +53,3 @@ consultaBezout(C1,C2,L):- init(C1,C2,L,Estado, coefs(X,Y)), movimiento(X,Y,Estad
 %consultaBezoutTest.
 %Ejemplo de caso de prueba para los datos del apartado II.
 consultaBezoutTest:- consultaBezout(3,4,2).
-
-
-
-%?- inicial(3,4,Estado), movimiento(4,-2,Estado, Operadores, Estados), write(Operadores), nl, write(Estados), nl.
