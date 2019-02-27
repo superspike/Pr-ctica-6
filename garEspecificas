@@ -1,0 +1,22 @@
+inicial2(estado2(0,0)).
+objetivo2(estado2(2,_)).
+movimiento2(estado2(I0,D0), estado2(0,D0), 'vaciar izquierda'):- I0\=0.
+movimiento2(estado2(I0,D0), estado2(I0,0), 'vaciar derecha'):- D0\=0.
+movimiento2(estado2(I0,D0), estado2(4,D0), 'llenar izquierda'):- I0\=4.
+movimiento2(estado2(I0,D0), estado2(I0,3), 'llenar derecha'):- D0\=3.
+movimiento2(estado2(I0,D0), estado2(0,D1), 'trasvasar de izquierda a derecha'):- I0 \= 0, A is 3 - D0, B is I0, A >= B, D1 is D0 + I0.
+
+movimiento2(estado2(I0,D0), estado2(I1,3), 'trasvasar de izquierda a derecha'):- I0 \= 0, A is 3 - D0, B is I0, A < B, I1 is I0 - (3 - D0).
+
+movimiento2(estado2(I0,D0), estado2(I1,0), 'trasvasar de derecha a izquierda'):- D0 \= 0, A is 4 - I0, B is D0, A >= B, I1 is I0 + D0.
+
+movimiento2(estado2(I0,D0), estado2(4,D1), 'trasvasar de derecha a izquierda'):- D0 \= 0, A is 4 - I0, B is D0, A < B, D1 is D0 - (4 - I0).
+
+puede2(Estado, _, [], [Estado], 0):- objetivo2(Estado),!.
+puede2(Estado, Visitados, [Operador|Operadores], [Estado|Estados], N):-
+              movimiento2(Estado, EstadoSig, Operador),
+              \+ member(EstadoSig,Visitados),
+              puede2(EstadoSig, [EstadoSig|Visitados], Operadores, Estados, M),N is M+1,!.
+consulta2:- inicial2(Estado), puede2(Estado,[Estado], Operadores, Estados, N), nl,
+write('Solución sin repetición de estados: '), nl,nl,write('Profundidad de la solucion encontrada: '),
+write(N),nl, write(Operadores), nl, write('Estados camino: '), nl, write(Estados).
